@@ -41,7 +41,12 @@ pub fn get_note(path: web::Path<String>, db: web::Data<redis::Client>) -> HttpRe
             return HttpResponse::InternalServerError().finish();
         }
     };
-    let data = con.get(path.clone()).unwrap();
+    let data = match con.get(path.clone()) {
+        Ok(v) => v,
+        Err(_) => {
+            return HttpResponse::NotFound().finish();
+        }
+    };
     let note = Note { data: data };
     HttpResponse::Ok().json(note)
 }
